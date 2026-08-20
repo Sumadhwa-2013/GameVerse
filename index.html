@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Challenge</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 25px 15px;
+}
+
+header h1 {
+    font-size: 42px;
+    margin: 5px;
+}
+
+header p {
+    font-size: 18px;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+    padding: 20px;
+}
+
+.score {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.games {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.game-card {
+    background: rgba(255,255,255,0.12);
+    padding: 22px;
+    border-radius: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.game-card:hover {
+    transform: translateY(-6px);
+    background: rgba(255,255,255,0.2);
+}
+
+.game-card h2 {
+    margin-bottom: 8px;
+}
+
+button {
+    border: none;
+    padding: 12px 20px;
+    margin: 8px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background: white;
+    color: #222;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.game-area {
+    display: none;
+    margin-top: 25px;
+    background: rgba(0,0,0,0.25);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.game-area.active {
+    display: block;
+}
+
+#reactionBox {
+    width: 220px;
+    height: 160px;
+    margin: 25px auto;
+    border-radius: 15px;
+    background: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#clickTarget {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    position: relative;
+    display: none;
+    cursor: pointer;
+    background: gold;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 70px);
+    justify-content: center;
+    gap: 10px;
+    margin: 20px;
+}
+
+.memory-card {
+    width: 70px;
+    height: 70px;
+    background: #3949ab;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.hidden {
+    color: transparent;
+}
+
+#message {
+    font-size: 20px;
+    min-height: 30px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏆 ULTIMATE CHALLENGE</h1>
+    <p>Can you beat all 5 games?</p>
+</header>
+
+<div class="container">
+
+<div class="score">
+    ⭐ Total Score: <span id="score">0</span>
+</div>
+
+<div class="games">
+
+<div class="game-card" onclick="openGame('reaction')">
+    <h2>⚡ Reaction</h2>
+    <p>Test your reaction speed!</p>
+</div>
+
+<div class="game-card" onclick="openGame('guess')">
+    <h2>🔢 Number Guess</h2>
+    <p>Guess the secret number.</p>
+</div>
+
+<div class="game-card" onclick="openGame('memory')">
+    <h2>🧠 Memory</h2>
+    <p>Match the pairs.</p>
+</div>
+
+<div class="game-card" onclick="openGame('click')">
+    <h2>🎯 Click Challenge</h2>
+    <p>Click the target 10 times.</p>
+</div>
+
+<div class="game-card" onclick="openGame('rps')">
+    <h2>🪨📄✂️ RPS</h2>
+    <p>Beat the computer.</p>
+</div>
+
+</div>
+
+<!-- REACTION -->
+
+<div id="reaction" class="game-area">
+
+<h2>⚡ Reaction Test</h2>
+
+<p>Click START and wait until the box turns green.</p>
+
+<button onclick="startReaction()">START</button>
+
+<div id="reactionBox" onclick="reactionClick()">
+    WAIT...
+</div>
+
+<p id="reactionResult"></p>
+
+</div>
+
+<!-- NUMBER GUESS -->
+
+<div id="guess" class="game-area">
+
+<h2>🔢 Number Guess</h2>
+
+<p>I'm thinking of a number between 1 and 100.</p>
+
+<input id="guessInput" type="number"
+style="padding:12px;border-radius:8px;border:none;font-size:18px;">
+
+<br>
+
+<button onclick="makeGuess()">GUESS</button>
+
+<p id="guessResult"></p>
+
+</div>
+
+<!-- MEMORY -->
+
+<div id="memory" class="game-area">
+
+<h2>🧠 Memory Challenge</h2>
+
+<p>Find all matching pairs.</p>
+
+<button onclick="startMemory()">START</button>
+
+<div id="memoryGrid" class="memory-grid"></div>
+
+<p id="memoryResult"></p>
+
+</div>
+
+<!-- CLICK -->
+
+<div id="click" class="game-area">
+
+<h2>🎯 Click Challenge</h2>
+
+<p>Click the yellow target 10 times!</p>
+
+<button onclick="startClickGame()">START</button>
+
+<div id="clickTarget" onclick="hitTarget()"></div>
+
+<p id="clickResult"></p>
+
+</div>
+
+<!-- RPS -->
+
+<div id="rps" class="game-area">
+
+<h2>🪨📄✂️ Rock Paper Scissors</h2>
+
+<p>Choose your move!</p>
+
+<button onclick="playRPS('Rock')">🪨 Rock</button>
+<button onclick="playRPS('Paper')">📄 Paper</button>
+<button onclick="playRPS('Scissors')">✂️ Scissors</button>
+
+<p id="rpsResult"></p>
+
+</div>
+
+</div>
+
+<footer>
+    Made with ❤️ by Sumadhwa
+</footer>
+
+
+<script>
+
+let score = 0;
+
+function addScore(points) {
+    score += points;
+    document.getElementById("score").textContent = score;
+}
+
+function openGame(game) {
+
+    document.querySelectorAll(".game-area")
+        .forEach(x => x.classList.remove("active"));
+
+    document.getElementById(game)
+        .classList.add("active");
+
+    window.scrollTo({
+        top: document.getElementById(game).offsetTop - 20,
+        behavior: "smooth"
+    });
+}
+
+
+/* REACTION GAME */
+
+let reactionStart;
+let reactionReady = false;
+
+function startReaction() {
+
+    let box = document.getElementById("reactionBox");
+
+    box.textContent = "WAIT...";
+    box.style.background = "#555";
+
+    reactionReady = false;
+
+    let delay = Math.random() * 3000 + 2000;
+
+    setTimeout(() => {
+
+        box.style.background = "green";
+        box.textContent = "CLICK!";
+        reactionStart = Date.now();
+        reactionReady = true;
+
+    }, delay);
+}
+
+function reactionClick() {
+
+    if (!reactionReady) return;
+
+    let time = Date.now() - reactionStart;
+
+    document.getElementById("reactionResult")
+        .textContent = "Your reaction time: " + time + " ms";
+
+    let points = Math.max(10, 100 - Math.floor(time / 10));
+
+    addScore(points);
+
+    reactionReady = false;
+}
+
+
+/* NUMBER GUESS */
+
+let secretNumber = Math.floor(Math.random() * 100) + 1;
+let attempts = 0;
+
+function makeGuess() {
+
+    let value = Number(document.getElementById("guessInput").value);
+
+    if (!value) return;
+
+    attempts++;
+
+    let result = document.getElementById("guessResult");
+
+    if (value === secretNumber) {
+
+        result.textContent =
+            "🎉 Correct! You got it in " + attempts + " attempts!";
+
+        addScore(Math.max(20, 100 - attempts * 10));
+
+        secretNumber = Math.floor(Math.random() * 100) + 1;
+        attempts = 0;
+
+    } else if (value < secretNumber) {
+
+        result.textContent = "⬆️ Too low!";
+
+    } else {
+
+        result.textContent = "⬇️ Too high!";
+    }
+}
+
+
+/* MEMORY GAME */
+
+let memoryValues = [];
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+let matched = 0;
+
+function startMemory() {
+
+    const grid = document.getElementById("memoryGrid");
+
+    grid.innerHTML = "";
+
+    let symbols = ["🍎","🍎","🚀","🚀","⭐","⭐","🐶","🐶"];
+
+    symbols.sort(() => Math.random() - 0.5);
+
+    firstCard = null;
+    secondCard = null;
+    lockBoard = false;
+    matched = 0;
+
+    symbols.forEach(symbol => {
+
+        let card = document.createElement("div");
+
+        card.className = "memory-card hidden";
+        card.textContent = symbol;
+
+        card.onclick = function() {
+
+            if (lockBoard ||
+                card === firstCard ||
+                !card.classList.contains("hidden")) return;
+
+            card.classList.remove("hidden");
+
+            if (!firstCard) {
+
+                firstCard = card;
+
+            } else {
+
+                secondCard = card;
+                lockBoard = true;
+
+                if (firstCard.textContent === secondCard.textContent) {
+
+                    matched++;
+
+                    firstCard = null;
+                    secondCard = null;
+                    lockBoard = false;
+
+                    addScore(20);
+
+                    if (matched === 4) {
+                        document.getElementById("memoryResult")
+                            .textContent = "🎉 You matched them all!";
+                    }
+
+                } else {
+
+                    setTimeout(() => {
+
+                        firstCard.classList.add("hidden");
+                        secondCard.classList.add("hidden");
+
+                        firstCard = null;
+                        secondCard = null;
+                        lockBoard = false;
+
+                    }, 700);
+                }
+            }
+        };
+
+        grid.appendChild(card);
+    });
+}
+
+
+/* CLICK GAME */
+
+let clickCount = 0;
+
+function startClickGame() {
+
+    clickCount = 0;
+
+    let target = document.getElementById("clickTarget");
+
+    target.style.display = "block";
+
+    moveTarget();
+
+    document.getElementById("clickResult")
+        .textContent = "Clicks: 0 / 10";
+}
+
+function moveTarget() {
+
+    let target = document.getElementById("clickTarget");
+
+    target.style.left =
+        Math.random() * 70 + "%";
+
+    target.style.top =
+        Math.random() * 150 + "px";
+}
+
+function hitTarget() {
+
+    clickCount++;
+
+    document.getElementById("clickResult")
+        .textContent = "Clicks: " + clickCount + " / 10";
+
+    addScore(5);
+
+    if (clickCount >= 10) {
+
+        document.getElementById("clickResult")
+            .textContent = "🎉 Challenge completed!";
+
+        document.getElementById("clickTarget")
+            .style.display = "none";
+
+    } else {
+
+        moveTarget();
+    }
+}
+
+
+/* ROCK PAPER SCISSORS */
+
+function playRPS(player) {
+
+    let choices = ["Rock", "Paper", "Scissors"];
+
+    let computer =
+        choices[Math.floor(Math.random() * 3)];
+
+    let result = "";
+
+    if (player === computer) {
+
+        result = "🤝 Draw!";
+
+    } else if (
+
+        (player === "Rock" && computer === "Scissors") ||
+        (player === "Paper" && computer === "Rock") ||
+        (player === "Scissors" && computer === "Paper")
+
+    ) {
+
+        result = "🎉 You WIN!";
+        addScore(30);
+
+    } else {
+
+        result = "😅 Computer wins!";
+    }
+
+    document.getElementById("rpsResult")
+        .textContent =
+        "You: " + player +
+        " | Computer: " + computer +
+        " → " + result;
+}
+
+</script>
+
+</body>
+</html>
